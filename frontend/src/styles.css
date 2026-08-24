@@ -438,11 +438,6 @@ pre.preview-body {
 
 /* ---- Modalità Desktop ---- */
 
-:root[data-view="desktop"] body {
-  display: flex;
-  justify-content: center;
-}
-
 :root[data-view="desktop"] .login-screen,
 :root[data-view="desktop"] .view-mode-screen {
   width: 100%;
@@ -455,13 +450,12 @@ pre.preview-body {
 
 :root[data-view="desktop"] .app {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 240px minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   grid-template-areas: "sidebar topbar" "sidebar main";
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
-  max-width: 1100px;
 }
 
 :root[data-view="desktop"] .topbar {
@@ -472,10 +466,10 @@ pre.preview-body {
 
 :root[data-view="desktop"] main {
   grid-area: main;
-  max-width: 720px;
+  max-width: 1100px;
   width: 100%;
   margin: 0 auto;
-  padding: 28px 28px 60px;
+  padding: 32px 40px 60px;
 }
 
 :root[data-view="desktop"] .bottom-nav {
