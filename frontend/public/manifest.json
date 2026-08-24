@@ -1,0 +1,9 @@
+{
+  "name": "Comunicazioni Servizi - Alfa Security",
+  "short_name": "Servizi Alfa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": []
+}
