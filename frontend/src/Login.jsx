@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { api } from './api.js';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onChangeViewMode }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -45,6 +45,9 @@ export default function Login({ onLogin }) {
           {loading ? 'Accesso in corso...' : 'Accedi'}
         </button>
       </form>
+      <button className="btn-ghost" style={{ margin: '16px auto 0', display: 'block' }} onClick={onChangeViewMode}>
+        Cambia visualizzazione
+      </button>
     </div>
   );
 }

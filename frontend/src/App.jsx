@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Login from './Login.jsx';
+import ViewModeSelector from './ViewModeSelector.jsx';
 import CommunicationForm from './CommunicationForm.jsx';
 import OperatorsPanel from './OperatorsPanel.jsx';
 import SitesPanel from './SitesPanel.jsx';
@@ -8,6 +9,7 @@ import { api } from './api.js';
 
 export default function App() {
   const [username, setUsername] = useState(null);
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode'));
   const [view, setView] = useState('form');
   const [operators, setOperators] = useState([]);
   const [sites, setSites] = useState([]);
@@ -33,6 +35,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (viewMode) document.documentElement.setAttribute('data-view', viewMode);
+  }, [viewMode]);
+
+  function selectViewMode(mode) {
+    localStorage.setItem('viewMode', mode);
+    setViewMode(mode);
+  }
+
+  function toggleViewMode() {
+    selectViewMode(viewMode === 'desktop' ? 'mobile' : 'desktop');
+  }
+
+  useEffect(() => {
     if (!username) return;
     loadOperators();
     loadSites();
@@ -56,15 +71,24 @@ export default function App() {
     setView('form');
   }
 
+  if (!viewMode) {
+    return <ViewModeSelector onSelect={selectViewMode} />;
+  }
+
   if (!username) {
-    return <Login onLogin={handleLogin} />;
+    return <Login onLogin={handleLogin} onChangeViewMode={() => setViewMode(null)} />;
   }
 
   return (
     <div className="app">
       <div className="topbar">
         <h1>Servizi Alfa Security</h1>
-        <button className="logout-btn" onClick={logout}>Esci</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <button className="logout-btn" onClick={toggleViewMode} title="Cambia visualizzazione">
+            {viewMode === 'desktop' ? '📱' : '🖥️'}
+          </button>
+          <button className="logout-btn" onClick={logout}>Esci</button>
+        </div>
       </div>
 
       <main>
