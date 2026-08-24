@@ -1,14 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const bcrypt = require('bcryptjs');
 const cron = require('node-cron');
 const fs = require('fs');
 const path = require('path');
 const pool = require('./db');
 const { sendMonthlyReport, previousMonth } = require('./monthlyReport');
 
-const authRoutes = require('./routes/auth');
 const operatorsRoutes = require('./routes/operators');
 const sitesRoutes = require('./routes/sites');
 const communicationsRoutes = require('./routes/communications');
@@ -19,7 +17,6 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
 app.use('/api/operators', operatorsRoutes);
 app.use('/api/sites', sitesRoutes);
 app.use('/api/communications', communicationsRoutes);
@@ -35,17 +32,6 @@ app.use((err, req, res, next) => {
 async function bootstrap() {
   const schema = fs.readFileSync(path.join(__dirname, '..', 'init.sql'), 'utf8');
   await pool.query(schema);
-
-  const adminUser = process.env.ADMIN_USERNAME;
-  const adminPass = process.env.ADMIN_PASSWORD;
-  if (adminUser && adminPass) {
-    const { rows } = await pool.query('SELECT id FROM users WHERE username = $1', [adminUser]);
-    if (!rows[0]) {
-      const hash = await bcrypt.hash(adminPass, 10);
-      await pool.query('INSERT INTO users (username, password_hash) VALUES ($1, $2)', [adminUser, hash]);
-      console.log(`Utente admin "${adminUser}" creato`);
-    }
-  }
 
   cron.schedule(
     '5 0 1 * *',

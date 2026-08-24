@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import Login from './Login.jsx';
 import ViewModeSelector from './ViewModeSelector.jsx';
 import CommunicationForm from './CommunicationForm.jsx';
 import OperatorsPanel from './OperatorsPanel.jsx';
 import SitesPanel from './SitesPanel.jsx';
 import History from './History.jsx';
 import { api } from './api.js';
-import { IconEdit, IconClock, IconUsers, IconMapPin, IconMonitor, IconSmartphone, IconShield, IconLogOut } from './Icons.jsx';
+import { IconEdit, IconClock, IconUsers, IconMapPin, IconMonitor, IconSmartphone, IconShield } from './Icons.jsx';
 
 export default function App() {
-  const [username, setUsername] = useState(null);
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode'));
   const [view, setView] = useState('form');
   const [operators, setOperators] = useState([]);
@@ -31,11 +29,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) setUsername(localStorage.getItem('username') || 'operatore');
-  }, []);
-
-  useEffect(() => {
     if (viewMode) document.documentElement.setAttribute('data-view', viewMode);
   }, [viewMode]);
 
@@ -49,22 +42,10 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (!username) return;
     loadOperators();
     loadSites();
     loadCommunications();
-  }, [username, loadOperators, loadSites, loadCommunications]);
-
-  function handleLogin(name) {
-    localStorage.setItem('username', name);
-    setUsername(name);
-  }
-
-  function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    setUsername(null);
-  }
+  }, [loadOperators, loadSites, loadCommunications]);
 
   function goToForm(protocols) {
     setDuplicateProtocols(protocols || null);
@@ -74,10 +55,6 @@ export default function App() {
 
   if (!viewMode) {
     return <ViewModeSelector onSelect={selectViewMode} />;
-  }
-
-  if (!username) {
-    return <Login onLogin={handleLogin} onChangeViewMode={() => setViewMode(null)} />;
   }
 
   return (
@@ -90,9 +67,6 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <button className="icon-btn" onClick={toggleViewMode} title="Cambia visualizzazione">
             {viewMode === 'desktop' ? <IconSmartphone size={18} /> : <IconMonitor size={18} />}
-          </button>
-          <button className="icon-btn" onClick={logout} title="Esci">
-            <IconLogOut size={18} />
           </button>
         </div>
       </div>

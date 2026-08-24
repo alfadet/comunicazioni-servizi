@@ -1,11 +1,9 @@
 const express = require('express');
 const pool = require('../db');
-const { requireAuth } = require('../auth');
 const { buildEmailContent, sendCommunicationEmail } = require('../email');
 const { generateCommunicationPdf } = require('../pdf');
 
 const router = express.Router();
-router.use(requireAuth);
 
 function validateProtocols(protocols) {
   if (!Array.isArray(protocols) || protocols.length === 0) {

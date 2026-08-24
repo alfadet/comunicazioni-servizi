@@ -13,16 +13,14 @@ Web app mobile-first per l'inserimento e l'invio via email dei protocolli operat
 ## Configurazione
 
 1. Copia `.env.example` in `.env` e compila i valori:
-   - `DB_PASSWORD`, `JWT_SECRET`: stringhe casuali forti
-   - `ADMIN_USERNAME` / `ADMIN_PASSWORD`: credenziali di accesso per il dipendente
-     (default `ALFA` / `ALFA1`, modificabili)
+   - `DB_PASSWORD`: stringa casuale forte
    - `SMTP_USER` / `SMTP_PASS`: account email mittente. Per Gmail serve una
      **app password** (non la password normale), generata da
      https://myaccount.google.com/apppasswords con la verifica in due passaggi attiva
    - `RECIPIENT_EMAIL`: già impostato su `amm.alfadetectives@gmail.com`
 
-2. L'utente admin viene creato automaticamente al primo avvio leggendo
-   `ADMIN_USERNAME` / `ADMIN_PASSWORD` dal `.env` (se non esiste già).
+**Nota**: l'app non ha login — chiunque abbia il link può accedere e inviare comunicazioni.
+Scelta esplicita dell'utente per semplicità d'uso.
 
 ## Deploy sul VPS
 
@@ -64,7 +62,8 @@ Poi genera il certificato SSL con certbot come per gli altri sottodomini.
 
 ## Uso
 
-1. Il dipendente accede con utente/password.
+1. Il dipendente apre il link (nessun login richiesto) e sceglie la visualizzazione
+   Desktop o iPhone al primo accesso.
 2. Sezione **Operatori**: aggiunge/modifica/cancella i nominativi disponibili.
 3. Sezione **Siti**: aggiunge/modifica/cancella i siti/locali/eventi disponibili.
 4. Sezione **Nuova**: compila uno o più "protocolli operativi" (sito selezionabile dalla

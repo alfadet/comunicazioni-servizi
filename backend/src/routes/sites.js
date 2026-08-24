@@ -1,9 +1,7 @@
 const express = require('express');
 const pool = require('../db');
-const { requireAuth } = require('../auth');
 
 const router = express.Router();
-router.use(requireAuth);
 
 router.get('/', async (req, res) => {
   const { rows } = await pool.query('SELECT id, nome, attivo FROM sites ORDER BY nome ASC');

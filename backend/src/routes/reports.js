@@ -1,11 +1,9 @@
 const express = require('express');
 const pool = require('../db');
-const { requireAuth } = require('../auth');
 const { sendMonthlyReport, previousMonth, getMonthSummary } = require('../monthlyReport');
 const { generateMonthlySummaryPdf } = require('../pdf');
 
 const router = express.Router();
-router.use(requireAuth);
 
 router.get('/summary', async (req, res) => {
   const now = new Date();

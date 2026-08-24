@@ -1,22 +1,11 @@
-function getToken() {
-  return localStorage.getItem('token');
-}
-
 async function request(path, options = {}) {
-  const token = getToken();
   const res = await fetch(`/api${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
   });
-  if (res.status === 401) {
-    localStorage.removeItem('token');
-    window.location.reload();
-    throw new Error('Sessione scaduta');
-  }
   const data = res.status === 204 ? null : await res.json().catch(() => null);
   if (!res.ok) {
     throw new Error(data?.error || 'Errore di rete');
@@ -25,10 +14,7 @@ async function request(path, options = {}) {
 }
 
 async function downloadPdf(path, filename) {
-  const token = getToken();
-  const res = await fetch(`/api${path}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  const res = await fetch(`/api${path}`);
   if (!res.ok) throw new Error('Impossibile generare il PDF');
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
@@ -42,8 +28,6 @@ async function downloadPdf(path, filename) {
 }
 
 export const api = {
-  login: (username, password) =>
-    request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
   getOperators: () => request('/operators'),
   addOperator: (nome) => request('/operators', { method: 'POST', body: JSON.stringify({ nome }) }),
   importOperators: (nomi) => request('/operators/bulk', { method: 'POST', body: JSON.stringify({ nomi }) }),
