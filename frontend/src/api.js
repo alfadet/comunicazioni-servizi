@@ -39,6 +39,7 @@ export const api = {
   getCommunications: () => request('/communications'),
   getServiceReport: (type, query) =>
     request(`/communications/report?type=${type}&query=${encodeURIComponent(query)}`),
+  getMonthSummary: (year, month) => request(`/reports/summary?year=${year}&month=${month}`),
   getCommunication: (id) => request(`/communications/${id}`),
   previewCommunication: (protocols) =>
     request('/communications/preview', { method: 'POST', body: JSON.stringify({ protocols }) }),

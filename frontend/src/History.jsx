@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from './api.js';
 import ServiceReport from './ServiceReport.jsx';
+import MonthlySummary from './MonthlySummary.jsx';
 
 function formatDateTime(iso) {
   const d = new Date(iso);
@@ -23,21 +24,36 @@ export default function History({ communications, onDuplicate }) {
   }, [openId]);
 
   const tabs = (
-    <div className="row-2" style={{ marginBottom: 14 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
       <button
         className={tab === 'elenco' ? 'btn btn-primary' : 'btn btn-secondary'}
         onClick={() => setTab('elenco')}
       >
-        Elenco invii
+        Elenco
+      </button>
+      <button
+        className={tab === 'riepilogo' ? 'btn btn-primary' : 'btn btn-secondary'}
+        onClick={() => setTab('riepilogo')}
+      >
+        Riepilogo
       </button>
       <button
         className={tab === 'report' ? 'btn btn-primary' : 'btn btn-secondary'}
         onClick={() => setTab('report')}
       >
-        Report servizi
+        Report
       </button>
     </div>
   );
+
+  if (tab === 'riepilogo') {
+    return (
+      <div>
+        {tabs}
+        <MonthlySummary />
+      </div>
+    );
+  }
 
   if (tab === 'report') {
     return (

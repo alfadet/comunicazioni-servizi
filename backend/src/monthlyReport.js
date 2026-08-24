@@ -91,4 +91,22 @@ function previousMonth(referenceDate = new Date()) {
   return { year: lastDayPrevMonth.getFullYear(), month: lastDayPrevMonth.getMonth() + 1 };
 }
 
-module.exports = { sendMonthlyReport, buildReportContent, getMonthServices, previousMonth };
+async function getMonthSummary(year, month) {
+  const services = await getMonthServices(year, month);
+  return {
+    year,
+    month,
+    monthLabel: `${MESI_IT[month - 1]} ${year}`,
+    total: services.length,
+    perSito: countBy(services, 'sito'),
+    perOperatore: countBy(services, 'operatore'),
+  };
+}
+
+module.exports = {
+  sendMonthlyReport,
+  buildReportContent,
+  getMonthServices,
+  getMonthSummary,
+  previousMonth,
+};
