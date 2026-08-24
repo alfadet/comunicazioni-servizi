@@ -29,6 +29,7 @@ export const api = {
     request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
   getOperators: () => request('/operators'),
   addOperator: (nome) => request('/operators', { method: 'POST', body: JSON.stringify({ nome }) }),
+  importOperators: (nomi) => request('/operators/bulk', { method: 'POST', body: JSON.stringify({ nomi }) }),
   updateOperator: (id, data) => request(`/operators/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteOperator: (id) => request(`/operators/${id}`, { method: 'DELETE' }),
   getSites: () => request('/sites'),

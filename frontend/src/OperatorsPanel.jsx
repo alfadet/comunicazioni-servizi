@@ -6,6 +6,10 @@ export default function OperatorsPanel({ operators, reload }) {
   const [error, setError] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importResult, setImportResult] = useState(null);
+  const [importing, setImporting] = useState(false);
 
   async function add(e) {
     e.preventDefault();
@@ -37,6 +41,25 @@ export default function OperatorsPanel({ operators, reload }) {
     reload();
   }
 
+  async function runImport(e) {
+    e.preventDefault();
+    const nomi = importText.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (nomi.length === 0) return;
+    setImporting(true);
+    setError('');
+    setImportResult(null);
+    try {
+      const result = await api.importOperators(nomi);
+      setImportResult(result);
+      setImportText('');
+      reload();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setImporting(false);
+    }
+  }
+
   return (
     <div>
       <h2 style={{ fontSize: 16, marginBottom: 12 }}>Gestione operatori</h2>
@@ -53,6 +76,33 @@ export default function OperatorsPanel({ operators, reload }) {
         </div>
         <button className="btn btn-primary" type="submit">+ Aggiungi</button>
       </form>
+
+      <div className="card">
+        <button className="btn-ghost" style={{ padding: 0 }} onClick={() => setShowImport((v) => !v)}>
+          {showImport ? '− Nascondi import lista' : '+ Importa lista (incolla più nominativi)'}
+        </button>
+        {showImport && (
+          <form onSubmit={runImport} style={{ marginTop: 12 }}>
+            <div className="field" style={{ marginBottom: 10 }}>
+              <label>Un nominativo per riga (copia dal foglio Excel/Google Sheets)</label>
+              <textarea
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                placeholder={'ROSSI MARIO\nBIANCHI LUCA\n...'}
+                rows={6}
+              />
+            </div>
+            <button className="btn btn-primary" type="submit" disabled={importing}>
+              {importing ? 'Importazione...' : 'Importa'}
+            </button>
+            {importResult && (
+              <div className="success-banner" style={{ marginTop: 10, marginBottom: 0 }}>
+                {importResult.inserted} aggiunti, {importResult.skipped} già presenti (saltati)
+              </div>
+            )}
+          </form>
+        )}
+      </div>
 
       {operators.map((o) => (
         <div className="card" key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

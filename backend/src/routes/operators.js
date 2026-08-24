@@ -29,6 +29,22 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.post('/bulk', async (req, res) => {
+  const nomi = Array.isArray(req.body?.nomi) ? req.body.nomi : [];
+  const clean = [...new Set(nomi.map((n) => (n || '').trim().toUpperCase()).filter(Boolean))];
+  if (clean.length === 0) return res.status(400).json({ error: 'Nessun nominativo valido' });
+
+  let inserted = 0;
+  for (const nome of clean) {
+    const { rowCount } = await pool.query(
+      'INSERT INTO operators (nome) VALUES ($1) ON CONFLICT (nome) DO NOTHING',
+      [nome]
+    );
+    inserted += rowCount;
+  }
+  res.status(201).json({ inserted, skipped: clean.length - inserted, total: clean.length });
+});
+
 router.put('/:id', async (req, res) => {
   const nome = (req.body?.nome || '').trim().toUpperCase();
   const attivo = req.body?.attivo !== undefined ? !!req.body.attivo : true;
