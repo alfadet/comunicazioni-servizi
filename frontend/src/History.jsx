@@ -96,13 +96,14 @@ export default function History({ communications, onDuplicate }) {
                 <pre className="preview-body">{detail.body_text}</pre>
               </div>
             </div>
-            <button
-              className="btn btn-primary"
-              style={{ marginBottom: 100 }}
-              onClick={() => onDuplicate(detail.protocols)}
-            >
-              Duplica e modifica per un nuovo invio
-            </button>
+            <div className="row-2" style={{ marginBottom: 100 }}>
+              <button className="btn btn-secondary" onClick={() => api.downloadCommunicationPdf(detail.id)}>
+                Scarica PDF
+              </button>
+              <button className="btn btn-primary" onClick={() => onDuplicate(detail.protocols)}>
+                Duplica e modifica
+              </button>
+            </div>
           </>
         )}
       </div>

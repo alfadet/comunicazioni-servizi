@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('../db');
 const { requireAuth } = require('../auth');
 const { sendMonthlyReport, previousMonth, getMonthSummary } = require('../monthlyReport');
+const { generateMonthlySummaryPdf } = require('../pdf');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -12,6 +13,14 @@ router.get('/summary', async (req, res) => {
   const month = parseInt(req.query.month, 10) || now.getMonth() + 1;
   const summary = await getMonthSummary(year, month);
   res.json(summary);
+});
+
+router.get('/summary/pdf', async (req, res) => {
+  const now = new Date();
+  const year = parseInt(req.query.year, 10) || now.getFullYear();
+  const month = parseInt(req.query.month, 10) || now.getMonth() + 1;
+  const summary = await getMonthSummary(year, month);
+  generateMonthlySummaryPdf(res, summary);
 });
 
 router.get('/monthly', async (req, res) => {

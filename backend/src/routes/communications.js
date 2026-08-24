@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('../db');
 const { requireAuth } = require('../auth');
 const { buildEmailContent, sendCommunicationEmail } = require('../email');
+const { generateCommunicationPdf } = require('../pdf');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -63,6 +64,12 @@ router.get('/:id', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM communications WHERE id = $1', [req.params.id]);
   if (!rows[0]) return res.status(404).json({ error: 'Non trovata' });
   res.json(rows[0]);
+});
+
+router.get('/:id/pdf', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM communications WHERE id = $1', [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ error: 'Non trovata' });
+  generateCommunicationPdf(res, rows[0]);
 });
 
 router.post('/', async (req, res) => {

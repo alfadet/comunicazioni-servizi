@@ -24,6 +24,23 @@ async function request(path, options = {}) {
   return data;
 }
 
+async function downloadPdf(path, filename) {
+  const token = getToken();
+  const res = await fetch(`/api${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error('Impossibile generare il PDF');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export const api = {
   login: (username, password) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
@@ -40,6 +57,9 @@ export const api = {
   getServiceReport: (type, query) =>
     request(`/communications/report?type=${type}&query=${encodeURIComponent(query)}`),
   getMonthSummary: (year, month) => request(`/reports/summary?year=${year}&month=${month}`),
+  downloadMonthSummaryPdf: (year, month) =>
+    downloadPdf(`/reports/summary/pdf?year=${year}&month=${month}`, `riepilogo_${year}_${String(month).padStart(2, '0')}.pdf`),
+  downloadCommunicationPdf: (id) => downloadPdf(`/communications/${id}/pdf`, `comunicazione_${id}.pdf`),
   getCommunication: (id) => request(`/communications/${id}`),
   previewCommunication: (protocols) =>
     request('/communications/preview', { method: 'POST', body: JSON.stringify({ protocols }) }),

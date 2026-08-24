@@ -55,9 +55,12 @@ export default function MonthlySummary() {
           <>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--accent)' }}>{summary.total}</div>
-              <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>
+              <div style={{ color: 'var(--text-dim)', fontSize: 13, marginBottom: 12 }}>
                 {isCurrentMonth(year, month) ? 'servizi fatti finora questo mese' : 'servizi totali nel mese'}
               </div>
+              <button className="btn btn-secondary" onClick={() => api.downloadMonthSummaryPdf(year, month)}>
+                Scarica PDF
+              </button>
             </div>
 
             <div style={{ marginBottom: 18 }}>
