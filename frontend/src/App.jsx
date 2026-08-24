@@ -6,6 +6,7 @@ import OperatorsPanel from './OperatorsPanel.jsx';
 import SitesPanel from './SitesPanel.jsx';
 import History from './History.jsx';
 import { api } from './api.js';
+import { IconEdit, IconClock, IconUsers, IconMapPin, IconMonitor, IconSmartphone, IconShield, IconLogOut } from './Icons.jsx';
 
 export default function App() {
   const [username, setUsername] = useState(null);
@@ -82,12 +83,17 @@ export default function App() {
   return (
     <div className="app">
       <div className="topbar">
-        <h1>Servizi Alfa Security</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button className="logout-btn" onClick={toggleViewMode} title="Cambia visualizzazione">
-            {viewMode === 'desktop' ? '📱' : '🖥️'}
+        <div className="brand">
+          <IconShield size={20} className="brand-icon" />
+          <h1>Servizi Alfa Security</h1>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button className="icon-btn" onClick={toggleViewMode} title="Cambia visualizzazione">
+            {viewMode === 'desktop' ? <IconSmartphone size={18} /> : <IconMonitor size={18} />}
           </button>
-          <button className="logout-btn" onClick={logout}>Esci</button>
+          <button className="icon-btn" onClick={logout} title="Esci">
+            <IconLogOut size={18} />
+          </button>
         </div>
       </div>
 
@@ -116,19 +122,19 @@ export default function App() {
 
       <nav className="bottom-nav">
         <button className={view === 'form' ? 'active' : ''} onClick={() => goToForm(null)}>
-          <span className="icon">📝</span>
+          <IconEdit size={19} className="icon" />
           Nuova
         </button>
         <button className={view === 'history' ? 'active' : ''} onClick={() => setView('history')}>
-          <span className="icon">🕓</span>
+          <IconClock size={19} className="icon" />
           Storico
         </button>
         <button className={view === 'operators' ? 'active' : ''} onClick={() => setView('operators')}>
-          <span className="icon">👥</span>
+          <IconUsers size={19} className="icon" />
           Operatori
         </button>
         <button className={view === 'sites' ? 'active' : ''} onClick={() => setView('sites')}>
-          <span className="icon">📍</span>
+          <IconMapPin size={19} className="icon" />
           Siti
         </button>
       </nav>

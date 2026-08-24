@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from './api.js';
+import { IconChevronLeft, IconChevronRight } from './Icons.jsx';
 
 function nowYearMonth() {
   const d = new Date();
@@ -41,10 +42,17 @@ export default function MonthlySummary() {
     <div>
       <div className="card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <button className="btn-ghost" onClick={() => shift(-1)}>‹</button>
-          <strong style={{ fontSize: 15 }}>{summary?.monthLabel || '...'}</strong>
-          <button className="btn-ghost" onClick={() => shift(1)} disabled={isCurrentMonth(year, month)}>
-            ›
+          <button className="icon-btn" onClick={() => shift(-1)} aria-label="Mese precedente">
+            <IconChevronLeft size={20} />
+          </button>
+          <strong style={{ fontSize: 15, letterSpacing: '0.01em' }}>{summary?.monthLabel || '...'}</strong>
+          <button
+            className="icon-btn"
+            onClick={() => shift(1)}
+            disabled={isCurrentMonth(year, month)}
+            aria-label="Mese successivo"
+          >
+            <IconChevronRight size={20} />
           </button>
         </div>
 

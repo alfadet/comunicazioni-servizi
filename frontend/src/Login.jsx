@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api } from './api.js';
+import { IconShield } from './Icons.jsx';
 
 export default function Login({ onLogin, onChangeViewMode }) {
   const [username, setUsername] = useState('');
@@ -24,6 +25,7 @@ export default function Login({ onLogin, onChangeViewMode }) {
 
   return (
     <div className="login-screen">
+      <IconShield size={34} className="view-mode-logo" />
       <h1>Comunicazioni Servizi<br />Alfa Security</h1>
       {error && <div className="error-banner">{error}</div>}
       <form onSubmit={submit}>
