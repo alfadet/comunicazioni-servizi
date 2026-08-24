@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from './api.js';
+import ServiceReport from './ServiceReport.jsx';
 
 function formatDateTime(iso) {
   const d = new Date(iso);
@@ -7,6 +8,7 @@ function formatDateTime(iso) {
 }
 
 export default function History({ communications, onDuplicate }) {
+  const [tab, setTab] = useState('elenco');
   const [openId, setOpenId] = useState(null);
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -20,8 +22,39 @@ export default function History({ communications, onDuplicate }) {
     api.getCommunication(openId).then(setDetail).finally(() => setLoading(false));
   }, [openId]);
 
+  const tabs = (
+    <div className="row-2" style={{ marginBottom: 14 }}>
+      <button
+        className={tab === 'elenco' ? 'btn btn-primary' : 'btn btn-secondary'}
+        onClick={() => setTab('elenco')}
+      >
+        Elenco invii
+      </button>
+      <button
+        className={tab === 'report' ? 'btn btn-primary' : 'btn btn-secondary'}
+        onClick={() => setTab('report')}
+      >
+        Report servizi
+      </button>
+    </div>
+  );
+
+  if (tab === 'report') {
+    return (
+      <div>
+        {tabs}
+        <ServiceReport />
+      </div>
+    );
+  }
+
   if (communications.length === 0) {
-    return <div className="empty-state">Nessuna comunicazione inviata finora</div>;
+    return (
+      <div>
+        {tabs}
+        <div className="empty-state">Nessuna comunicazione inviata finora</div>
+      </div>
+    );
   }
 
   if (openId !== null) {
@@ -62,6 +95,7 @@ export default function History({ communications, onDuplicate }) {
 
   return (
     <div>
+      {tabs}
       <h2 style={{ fontSize: 16, marginBottom: 12 }}>Storico invii</h2>
       {communications.map((c) => (
         <div className="history-item" key={c.id} onClick={() => setOpenId(c.id)}>

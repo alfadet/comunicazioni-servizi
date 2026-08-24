@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Login from './Login.jsx';
 import CommunicationForm from './CommunicationForm.jsx';
 import OperatorsPanel from './OperatorsPanel.jsx';
+import SitesPanel from './SitesPanel.jsx';
 import History from './History.jsx';
 import { api } from './api.js';
 
@@ -9,12 +10,17 @@ export default function App() {
   const [username, setUsername] = useState(null);
   const [view, setView] = useState('form');
   const [operators, setOperators] = useState([]);
+  const [sites, setSites] = useState([]);
   const [communications, setCommunications] = useState([]);
   const [duplicateProtocols, setDuplicateProtocols] = useState(null);
   const [formKey, setFormKey] = useState(0);
 
   const loadOperators = useCallback(() => {
     api.getOperators().then(setOperators).catch(() => {});
+  }, []);
+
+  const loadSites = useCallback(() => {
+    api.getSites().then(setSites).catch(() => {});
   }, []);
 
   const loadCommunications = useCallback(() => {
@@ -29,8 +35,9 @@ export default function App() {
   useEffect(() => {
     if (!username) return;
     loadOperators();
+    loadSites();
     loadCommunications();
-  }, [username, loadOperators, loadCommunications]);
+  }, [username, loadOperators, loadSites, loadCommunications]);
 
   function handleLogin(name) {
     localStorage.setItem('username', name);
@@ -65,6 +72,7 @@ export default function App() {
           <CommunicationForm
             key={formKey}
             operators={operators}
+            sites={sites}
             initialProtocols={duplicateProtocols}
             onSent={() => {
               loadCommunications();
@@ -73,6 +81,7 @@ export default function App() {
           />
         )}
         {view === 'operators' && <OperatorsPanel operators={operators} reload={loadOperators} />}
+        {view === 'sites' && <SitesPanel sites={sites} reload={loadSites} />}
         {view === 'history' && (
           <History
             communications={communications}
@@ -93,6 +102,10 @@ export default function App() {
         <button className={view === 'operators' ? 'active' : ''} onClick={() => setView('operators')}>
           <span className="icon">👥</span>
           Operatori
+        </button>
+        <button className={view === 'sites' ? 'active' : ''} onClick={() => setView('sites')}>
+          <span className="icon">📍</span>
+          Siti
         </button>
       </nav>
     </div>

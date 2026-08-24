@@ -8,6 +8,7 @@ const pool = require('./db');
 
 const authRoutes = require('./routes/auth');
 const operatorsRoutes = require('./routes/operators');
+const sitesRoutes = require('./routes/sites');
 const communicationsRoutes = require('./routes/communications');
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/operators', operatorsRoutes);
+app.use('/api/sites', sitesRoutes);
 app.use('/api/communications', communicationsRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));

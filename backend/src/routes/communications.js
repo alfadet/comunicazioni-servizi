@@ -28,6 +28,37 @@ router.get('/', async (req, res) => {
   res.json(rows);
 });
 
+router.get('/report', async (req, res) => {
+  const type = req.query.type;
+  const query = (req.query.query || '').trim().toUpperCase();
+  if (!['operatore', 'sito'].includes(type) || !query) {
+    return res.status(400).json({ error: 'Parametri di ricerca mancanti' });
+  }
+
+  const { rows } = await pool.query('SELECT protocols FROM communications');
+  const items = [];
+
+  for (const row of rows) {
+    for (const p of row.protocols || []) {
+      const unita = Array.isArray(p.unita) ? p.unita : [];
+      if (type === 'sito') {
+        if (!p.sito || !p.sito.toUpperCase().includes(query)) continue;
+        for (const operatore of unita) {
+          items.push({ operatore, sito: p.sito, data: p.data, orario_inizio: p.orario_inizio, orario_fine: p.orario_fine });
+        }
+      } else {
+        for (const operatore of unita) {
+          if (!operatore.toUpperCase().includes(query)) continue;
+          items.push({ operatore, sito: p.sito, data: p.data, orario_inizio: p.orario_inizio, orario_fine: p.orario_fine });
+        }
+      }
+    }
+  }
+
+  items.sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0));
+  res.json({ total: items.length, items });
+});
+
 router.get('/:id', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM communications WHERE id = $1', [req.params.id]);
   if (!rows[0]) return res.status(404).json({ error: 'Non trovata' });

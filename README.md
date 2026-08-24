@@ -15,6 +15,7 @@ Web app mobile-first per l'inserimento e l'invio via email dei protocolli operat
 1. Copia `.env.example` in `.env` e compila i valori:
    - `DB_PASSWORD`, `JWT_SECRET`: stringhe casuali forti
    - `ADMIN_USERNAME` / `ADMIN_PASSWORD`: credenziali di accesso per il dipendente
+     (default `ALFA` / `ALFA1`, modificabili)
    - `SMTP_USER` / `SMTP_PASS`: account email mittente. Per Gmail serve una
      **app password** (non la password normale), generata da
      https://myaccount.google.com/apppasswords con la verifica in due passaggi attiva
@@ -65,10 +66,11 @@ Poi genera il certificato SSL con certbot come per gli altri sottodomini.
 
 1. Il dipendente accede con utente/password.
 2. Sezione **Operatori**: aggiunge/modifica/cancella i nominativi disponibili.
-3. Sezione **Nuova**: compila uno o più "protocolli operativi" (sito, data, orario,
-   unità assegnate cercabili dalla lista, note), poi tocca "Rivedi e invia" per
-   vedere l'anteprima esatta dell'email prima della conferma.
-4. Sezione **Storico**: consulta le comunicazioni già inviate; da ogni comunicazione
+3. Sezione **Siti**: aggiunge/modifica/cancella i siti/locali/eventi disponibili.
+4. Sezione **Nuova**: compila uno o più "protocolli operativi" (sito selezionabile dalla
+   lista, data, orario, unità assegnate cercabili dalla lista, note), poi tocca
+   "Rivedi e invia" per vedere l'anteprima esatta dell'email prima della conferma.
+5. Sezione **Storico**: consulta le comunicazioni già inviate; da ogni comunicazione
    si può toccare "Duplica e modifica" per riaprirla in un nuovo form, correggere
    i dati (es. nominativi sbagliati) e inviarla di nuovo.
 

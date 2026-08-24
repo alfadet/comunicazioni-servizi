@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import OperatorPicker from './OperatorPicker.jsx';
+import SitePicker from './SitePicker.jsx';
 import { api } from './api.js';
 
 function emptyProtocol() {
   return { sito: '', data: '', orario_inizio: '', orario_fine: '', unita: [], note: '' };
 }
 
-export default function CommunicationForm({ operators, initialProtocols, onSent }) {
+export default function CommunicationForm({ operators, sites, initialProtocols, onSent }) {
   const [protocols, setProtocols] = useState(initialProtocols?.length ? initialProtocols : [emptyProtocol()]);
   const [pickerIndex, setPickerIndex] = useState(null);
+  const [sitePickerIndex, setSitePickerIndex] = useState(null);
   const [reviewing, setReviewing] = useState(false);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
@@ -101,12 +103,9 @@ export default function CommunicationForm({ operators, initialProtocols, onSent 
 
           <div className="field">
             <label>Sito / Locale / Evento</label>
-            <input
-              type="text"
-              value={p.sito}
-              onChange={(e) => updateProtocol(idx, { sito: e.target.value.toUpperCase() })}
-              placeholder="Es. CALDONAZZO (PIAZZA)"
-            />
+            <button className="btn btn-secondary" onClick={() => setSitePickerIndex(idx)}>
+              {p.sito ? p.sito : '+ Seleziona sito'}
+            </button>
           </div>
 
           <div className="field">
@@ -171,6 +170,17 @@ export default function CommunicationForm({ operators, initialProtocols, onSent 
           onConfirm={(names) => {
             updateProtocol(pickerIndex, { unita: names });
             setPickerIndex(null);
+          }}
+        />
+      )}
+
+      {sitePickerIndex !== null && (
+        <SitePicker
+          sites={sites}
+          onClose={() => setSitePickerIndex(null)}
+          onSelect={(nome) => {
+            updateProtocol(sitePickerIndex, { sito: nome });
+            setSitePickerIndex(null);
           }}
         />
       )}

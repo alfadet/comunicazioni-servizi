@@ -31,7 +31,13 @@ export const api = {
   addOperator: (nome) => request('/operators', { method: 'POST', body: JSON.stringify({ nome }) }),
   updateOperator: (id, data) => request(`/operators/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteOperator: (id) => request(`/operators/${id}`, { method: 'DELETE' }),
+  getSites: () => request('/sites'),
+  addSite: (nome) => request('/sites', { method: 'POST', body: JSON.stringify({ nome }) }),
+  updateSite: (id, data) => request(`/sites/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteSite: (id) => request(`/sites/${id}`, { method: 'DELETE' }),
   getCommunications: () => request('/communications'),
+  getServiceReport: (type, query) =>
+    request(`/communications/report?type=${type}&query=${encodeURIComponent(query)}`),
   getCommunication: (id) => request(`/communications/${id}`),
   previewCommunication: (protocols) =>
     request('/communications/preview', { method: 'POST', body: JSON.stringify({ protocols }) }),
