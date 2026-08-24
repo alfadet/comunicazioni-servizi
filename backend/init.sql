@@ -31,3 +31,14 @@ CREATE TABLE IF NOT EXISTS communications (
 );
 
 CREATE INDEX IF NOT EXISTS idx_communications_sent_at ON communications (sent_at DESC);
+
+CREATE TABLE IF NOT EXISTS monthly_reports (
+  id SERIAL PRIMARY KEY,
+  report_year INT NOT NULL,
+  report_month INT NOT NULL,
+  subject TEXT NOT NULL,
+  body_text TEXT NOT NULL,
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  send_status TEXT NOT NULL DEFAULT 'sent',
+  send_error TEXT
+);
