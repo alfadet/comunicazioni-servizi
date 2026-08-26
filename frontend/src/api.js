@@ -41,6 +41,7 @@ export const api = {
   getServiceReport: (type, query) =>
     request(`/communications/report?type=${type}&query=${encodeURIComponent(query)}`),
   getMonthSummary: (year, month) => request(`/reports/summary?year=${year}&month=${month}`),
+  getMonthProjection: (year, month) => request(`/reports/projection?year=${year}&month=${month}`),
   downloadMonthSummaryPdf: (year, month) =>
     downloadPdf(`/reports/summary/pdf?year=${year}&month=${month}`, `riepilogo_${year}_${String(month).padStart(2, '0')}.pdf`),
   downloadCommunicationPdf: (id) => downloadPdf(`/communications/${id}/pdf`, `comunicazione_${id}.pdf`),

@@ -15,7 +15,7 @@ async function getMonthServices(year, month) {
       if (!p.data || !p.data.startsWith(prefix)) continue;
       const unita = Array.isArray(p.unita) ? p.unita : [];
       for (const operatore of unita) {
-        services.push({ operatore, sito: p.sito });
+        services.push({ operatore, sito: p.sito, data: p.data });
       }
     }
   }
@@ -103,10 +103,46 @@ async function getMonthSummary(year, month) {
   };
 }
 
+function daysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+async function getMonthProjection(year, month) {
+  const services = await getMonthServices(year, month);
+  const totalServizi = services.length;
+
+  const servicePrice = Number(process.env.SERVICE_REVENUE) || 185;
+  const operatorPayout = Number(process.env.OPERATOR_PAYOUT) || 160;
+  const margineUnitario = servicePrice - operatorPayout;
+
+  const nGiorni = daysInMonth(year, month);
+  const perGiorno = Array.from({ length: nGiorni }, (_, i) => ({ giorno: i + 1, count: 0 }));
+  for (const s of services) {
+    if (!s.data) continue;
+    const giorno = parseInt(s.data.slice(8, 10), 10);
+    if (perGiorno[giorno - 1]) perGiorno[giorno - 1].count += 1;
+  }
+
+  return {
+    year,
+    month,
+    monthLabel: `${MESI_IT[month - 1]} ${year}`,
+    totalServizi,
+    servicePrice,
+    operatorPayout,
+    margineUnitario,
+    ricavoTotale: totalServizi * servicePrice,
+    costoOperatori: totalServizi * operatorPayout,
+    margineTotale: totalServizi * margineUnitario,
+    perGiorno,
+  };
+}
+
 module.exports = {
   sendMonthlyReport,
   buildReportContent,
   getMonthServices,
   getMonthSummary,
+  getMonthProjection,
   previousMonth,
 };

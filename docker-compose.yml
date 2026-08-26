@@ -26,9 +26,6 @@ services:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME:-comunicazioni_servizi}
-      JWT_SECRET: ${JWT_SECRET}
-      ADMIN_USERNAME: ${ADMIN_USERNAME}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-465}
       SMTP_SECURE: ${SMTP_SECURE:-true}
@@ -36,6 +33,8 @@ services:
       SMTP_PASS: ${SMTP_PASS}
       SMTP_FROM: ${SMTP_FROM}
       RECIPIENT_EMAIL: ${RECIPIENT_EMAIL}
+      SERVICE_REVENUE: ${SERVICE_REVENUE:-185}
+      OPERATOR_PAYOUT: ${OPERATOR_PAYOUT:-160}
 
   frontend:
     build: ./frontend

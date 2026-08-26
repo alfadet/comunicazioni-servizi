@@ -4,8 +4,9 @@ import CommunicationForm from './CommunicationForm.jsx';
 import OperatorsPanel from './OperatorsPanel.jsx';
 import SitesPanel from './SitesPanel.jsx';
 import History from './History.jsx';
+import MonthlyProjection from './MonthlyProjection.jsx';
 import { api } from './api.js';
-import { IconEdit, IconClock, IconUsers, IconMapPin, IconMonitor, IconSmartphone, IconShield } from './Icons.jsx';
+import { IconEdit, IconClock, IconUsers, IconMapPin, IconMonitor, IconSmartphone, IconShield, IconBarChart } from './Icons.jsx';
 
 export default function App() {
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode'));
@@ -92,6 +93,7 @@ export default function App() {
             onDuplicate={(protocols) => goToForm(protocols)}
           />
         )}
+        {view === 'projection' && <MonthlyProjection />}
       </main>
 
       <nav className="bottom-nav">
@@ -110,6 +112,10 @@ export default function App() {
         <button className={view === 'sites' ? 'active' : ''} onClick={() => setView('sites')}>
           <IconMapPin size={19} className="icon" />
           Siti
+        </button>
+        <button className={view === 'projection' ? 'active' : ''} onClick={() => setView('projection')}>
+          <IconBarChart size={19} className="icon" />
+          Proiezione
         </button>
       </nav>
     </div>
