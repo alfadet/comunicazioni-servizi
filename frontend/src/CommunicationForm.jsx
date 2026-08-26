@@ -3,8 +3,15 @@ import OperatorPicker from './OperatorPicker.jsx';
 import SitePicker from './SitePicker.jsx';
 import { api } from './api.js';
 
+function todayISO() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
 function emptyProtocol() {
-  return { sito: '', data: '', orario_inizio: '', orario_fine: '', unita: [], note: '' };
+  return { sito: '', data: todayISO(), orario_inizio: '', orario_fine: '', unita: [], note: '' };
 }
 
 export default function CommunicationForm({ operators, sites, initialProtocols, onSent }) {
@@ -110,7 +117,12 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
 
           <div className="field">
             <label>Data</label>
-            <input type="date" value={p.data} onChange={(e) => updateProtocol(idx, { data: e.target.value })} />
+            <input
+              type="date"
+              value={p.data}
+              onChange={(e) => updateProtocol(idx, { data: e.target.value })}
+              onClick={(e) => e.target.showPicker?.()}
+            />
           </div>
 
           <div className="row-2" style={{ marginBottom: 14 }}>
