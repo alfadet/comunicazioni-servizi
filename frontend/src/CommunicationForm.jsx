@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import OperatorPicker from './OperatorPicker.jsx';
 import SitePicker from './SitePicker.jsx';
 import { api } from './api.js';
@@ -23,6 +23,7 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState('');
+  const sendingRef = useRef(false);
 
   function updateProtocol(idx, patch) {
     setProtocols((prev) => prev.map((p, i) => (i === idx ? { ...p, ...patch } : p)));
@@ -52,6 +53,10 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
   }
 
   async function confirmSend() {
+    // sendingRef è sincrono (a differenza dello stato React) e blocca sul colpo
+    // eventuali doppi tap/click che arrivano prima che il bottone si disabiliti a schermo.
+    if (sendingRef.current) return;
+    sendingRef.current = true;
     setSending(true);
     setError('');
     try {
@@ -63,6 +68,7 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
     } catch (err) {
       setError(err.message);
     } finally {
+      sendingRef.current = false;
       setSending(false);
     }
   }
