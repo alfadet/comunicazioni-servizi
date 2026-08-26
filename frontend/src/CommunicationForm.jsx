@@ -1,7 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import OperatorPicker from './OperatorPicker.jsx';
 import SitePicker from './SitePicker.jsx';
 import { api } from './api.js';
+
+const SEND_DELAY_SECONDS = 35;
 
 function todayISO() {
   const d = new Date();
@@ -23,7 +25,17 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState('');
+  const [countdown, setCountdown] = useState(null);
   const sendingRef = useRef(false);
+  const countdownIntervalRef = useRef(null);
+
+  useEffect(() => {
+    // Se l'operatore cambia schermata mentre il conto alla rovescia è attivo,
+    // l'invio programmato viene annullato: niente invii "in background".
+    return () => {
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
 
   function updateProtocol(idx, patch) {
     setProtocols((prev) => prev.map((p, i) => (i === idx ? { ...p, ...patch } : p)));
@@ -52,7 +64,7 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
     }
   }
 
-  async function confirmSend() {
+  async function doSend() {
     // sendingRef è sincrono (a differenza dello stato React) e blocca sul colpo
     // eventuali doppi tap/click che arrivano prima che il bottone si disabiliti a schermo.
     if (sendingRef.current) return;
@@ -63,6 +75,7 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
       await api.sendCommunication(protocols);
       setSuccess('Comunicazione inviata correttamente.');
       setReviewing(false);
+      setCountdown(null);
       setProtocols([emptyProtocol()]);
       onSent?.();
     } catch (err) {
@@ -71,6 +84,30 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
       sendingRef.current = false;
       setSending(false);
     }
+  }
+
+  function startCountdown() {
+    setCountdown(SEND_DELAY_SECONDS);
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
+          doSend();
+          return null;
+        }
+        return c - 1;
+      });
+    }, 1000);
+  }
+
+  function cancelCountdown() {
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+    setCountdown(null);
+    setReviewing(false);
   }
 
   if (reviewing && preview) {
@@ -88,14 +125,29 @@ export default function CommunicationForm({ operators, sites, initialProtocols, 
           </div>
         </div>
         {error && <div className="error-banner">{error}</div>}
-        <div style={{ display: 'flex', gap: 10, marginBottom: 90 }}>
-          <button className="btn btn-secondary" onClick={() => setReviewing(false)} disabled={sending}>
-            Modifica
-          </button>
-          <button className="btn btn-primary" onClick={confirmSend} disabled={sending}>
-            {sending ? 'Invio in corso...' : 'Conferma e invia'}
-          </button>
-        </div>
+
+        {countdown !== null ? (
+          <div className="card countdown-card" style={{ marginBottom: 90 }}>
+            <div className="countdown-text">
+              Invio automatico tra {countdown} second{countdown === 1 ? 'o' : 'i'}
+            </div>
+            <div style={{ color: 'var(--text-dim)', fontSize: 13, marginBottom: 14 }}>
+              Tocca "Annulla / Modifica" per fermare l'invio e correggere i dati
+            </div>
+            <button className="btn btn-danger" onClick={cancelCountdown}>
+              Annulla / Modifica
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 10, marginBottom: 90 }}>
+            <button className="btn btn-secondary" onClick={() => setReviewing(false)} disabled={sending}>
+              Modifica
+            </button>
+            <button className="btn btn-primary" onClick={startCountdown} disabled={sending}>
+              {sending ? 'Invio in corso...' : 'Conferma e invia'}
+            </button>
+          </div>
+        )}
       </div>
     );
   }

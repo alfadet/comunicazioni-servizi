@@ -677,3 +677,23 @@ pre.preview-body {
   border: 1px solid var(--border);
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 20px 60px rgba(0, 0, 0, 0.5);
 }
+
+/* ---- Conto alla rovescia prima dell'invio ---- */
+
+.countdown-card {
+  text-align: center;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.countdown-text {
+  color: var(--danger);
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  animation: countdown-pulse 1s ease-in-out infinite;
+}
+
+@keyframes countdown-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
