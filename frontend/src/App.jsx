@@ -91,6 +91,7 @@ export default function App() {
           <History
             communications={communications}
             onDuplicate={(protocols) => goToForm(protocols)}
+            onChanged={loadCommunications}
           />
         )}
         {view === 'projection' && <MonthlyProjection />}

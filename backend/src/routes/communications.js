@@ -67,8 +67,83 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/pdf', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM communications WHERE id = $1', [req.params.id]);
   if (!rows[0]) return res.status(404).json({ error: 'Non trovata' });
-  generateCommunicationPdf(res, rows[0]);
+  const current = { ...rows[0], body_text: buildEmailContent(rows[0].protocols).body };
+  generateCommunicationPdf(res, current);
 });
+
+// Correzioni sullo storico: non inviano nessuna email, modificano solo i dati salvati.
+// sito+data vengono ricontrollati sul protocollo all'indice indicato, così una
+// modifica concorrente non può colpire il protocollo sbagliato.
+async function editProtocols(req, res, mutate) {
+  const idx = parseInt(req.params.idx, 10);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(
+      'SELECT protocols FROM communications WHERE id = $1 FOR UPDATE',
+      [req.params.id]
+    );
+    if (!rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Comunicazione non trovata' });
+    }
+    const protocols = rows[0].protocols;
+    const p = protocols[idx];
+    if (!p || p.sito !== req.query.sito || p.data !== req.query.data) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'I dati sono cambiati, ricarica la pagina e riprova' });
+    }
+
+    const outcome = mutate(protocols, idx, p);
+    if (outcome.error) {
+      await client.query('ROLLBACK');
+      return res.status(outcome.status).json({ error: outcome.error });
+    }
+
+    if (outcome.deleteCommunication) {
+      await client.query('DELETE FROM communications WHERE id = $1', [req.params.id]);
+    } else {
+      await client.query(
+        'UPDATE communications SET protocols = $1, edited_at = now() WHERE id = $2',
+        [JSON.stringify(outcome.protocols), req.params.id]
+      );
+    }
+    await client.query('COMMIT');
+    res.json({ ok: true, deletedCommunication: !!outcome.deleteCommunication });
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error(err);
+    res.status(500).json({ error: 'Errore interno' });
+  } finally {
+    client.release();
+  }
+}
+
+router.delete('/:id/protocols/:idx/operators/:nome', (req, res) =>
+  editProtocols(req, res, (protocols, idx, p) => {
+    const unita = Array.isArray(p.unita) ? p.unita : [];
+    if (!unita.includes(req.params.nome)) {
+      return { status: 404, error: 'Operatore non presente in questo protocollo' };
+    }
+    if (unita.length <= 1) {
+      return {
+        status: 409,
+        error: 'È l\'ultimo operatore del protocollo: per toglierlo elimina l\'intero protocollo',
+      };
+    }
+    const updated = protocols.map((x, i) =>
+      i === idx ? { ...x, unita: unita.filter((u) => u !== req.params.nome) } : x
+    );
+    return { protocols: updated };
+  })
+);
+
+router.delete('/:id/protocols/:idx', (req, res) =>
+  editProtocols(req, res, (protocols, idx) => {
+    if (protocols.length === 1) return { deleteCommunication: true };
+    return { protocols: protocols.filter((_, i) => i !== idx) };
+  })
+);
 
 router.post('/', async (req, res) => {
   const protocols = req.body?.protocols;

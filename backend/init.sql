@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS communications (
   send_error TEXT
 );
 
+ALTER TABLE communications ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ;
+
 CREATE INDEX IF NOT EXISTS idx_communications_sent_at ON communications (sent_at DESC);
 
 CREATE TABLE IF NOT EXISTS monthly_reports (

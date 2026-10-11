@@ -46,6 +46,18 @@ export const api = {
     downloadPdf(`/reports/summary/pdf?year=${year}&month=${month}`, `riepilogo_${year}_${String(month).padStart(2, '0')}.pdf`),
   downloadCommunicationPdf: (id) => downloadPdf(`/communications/${id}/pdf`, `comunicazione_${id}.pdf`),
   getCommunication: (id) => request(`/communications/${id}`),
+  removeOperatorFromProtocol: (id, idx, protocol, nome) =>
+    request(
+      `/communications/${id}/protocols/${idx}/operators/${encodeURIComponent(nome)}` +
+        `?sito=${encodeURIComponent(protocol.sito)}&data=${encodeURIComponent(protocol.data)}`,
+      { method: 'DELETE' }
+    ),
+  deleteProtocol: (id, idx, protocol) =>
+    request(
+      `/communications/${id}/protocols/${idx}` +
+        `?sito=${encodeURIComponent(protocol.sito)}&data=${encodeURIComponent(protocol.data)}`,
+      { method: 'DELETE' }
+    ),
   previewCommunication: (protocols) =>
     request('/communications/preview', { method: 'POST', body: JSON.stringify({ protocols }) }),
   sendCommunication: (protocols) =>

@@ -58,6 +58,10 @@ function generateCommunicationPdf(res, communication) {
   doc.font('Helvetica').text(` ${communication.subject}`);
   doc.font('Helvetica-Bold').text('Inviata il:', { continued: true });
   doc.font('Helvetica').text(` ${new Date(communication.sent_at).toLocaleString('it-IT')}`);
+  if (communication.edited_at) {
+    doc.font('Helvetica-Bold').text('Corretta il:', { continued: true });
+    doc.font('Helvetica').text(` ${new Date(communication.edited_at).toLocaleString('it-IT')}`);
+  }
   doc.moveDown(1);
 
   doc.fontSize(9).font('Courier').fillColor('#000000').text(communication.body_text, {
