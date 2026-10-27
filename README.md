@@ -19,8 +19,12 @@ Web app mobile-first per l'inserimento e l'invio via email dei protocolli operat
      https://myaccount.google.com/apppasswords con la verifica in due passaggi attiva
    - `RECIPIENT_EMAIL`: già impostato su `amm.alfadetectives@gmail.com`
 
-**Nota**: l'app non ha login — chiunque abbia il link può accedere e inviare comunicazioni.
-Scelta esplicita dell'utente per semplicità d'uso.
+   - `APP_PASSWORD`: password condivisa per entrare nell'app (nessun nome utente).
+     Cambiarla fa uscire tutti i dispositivi già collegati.
+   - `SESSION_SECRET`: stringa casuale lunga (`openssl rand -hex 32`), serve a firmare le sessioni.
+
+L'accesso dura 30 giorni per dispositivo. Dopo 8 password errate dallo stesso indirizzo
+l'accesso viene bloccato per 15 minuti.
 
 ## Deploy sul VPS
 

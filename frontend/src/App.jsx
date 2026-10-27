@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import ViewModeSelector from './ViewModeSelector.jsx';
+import Login from './Login.jsx';
 import CommunicationForm from './CommunicationForm.jsx';
 import OperatorsPanel from './OperatorsPanel.jsx';
 import SitesPanel from './SitesPanel.jsx';
 import History from './History.jsx';
 import MonthlyProjection from './MonthlyProjection.jsx';
-import { api } from './api.js';
-import { IconEdit, IconClock, IconUsers, IconMapPin, IconMonitor, IconSmartphone, IconShield, IconBarChart } from './Icons.jsx';
+import { api, auth } from './api.js';
+import { IconEdit, IconClock, IconUsers, IconMapPin, IconMonitor, IconSmartphone, IconShield, IconBarChart, IconLogOut } from './Icons.jsx';
 
 export default function App() {
+  const [authed, setAuthed] = useState(() => auth.hasToken());
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode'));
   const [view, setView] = useState('form');
   const [operators, setOperators] = useState([]);
@@ -43,10 +45,22 @@ export default function App() {
   }
 
   useEffect(() => {
+    const onExpired = () => setAuthed(false);
+    window.addEventListener('auth-expired', onExpired);
+    return () => window.removeEventListener('auth-expired', onExpired);
+  }, []);
+
+  useEffect(() => {
+    if (!authed) return;
     loadOperators();
     loadSites();
     loadCommunications();
-  }, [loadOperators, loadSites, loadCommunications]);
+  }, [authed, loadOperators, loadSites, loadCommunications]);
+
+  function logout() {
+    auth.clear();
+    setAuthed(false);
+  }
 
   function goToForm(protocols) {
     setDuplicateProtocols(protocols || null);
@@ -56,6 +70,10 @@ export default function App() {
 
   if (!viewMode) {
     return <ViewModeSelector onSelect={selectViewMode} />;
+  }
+
+  if (!authed) {
+    return <Login onLogin={() => setAuthed(true)} onChangeViewMode={() => setViewMode(null)} />;
   }
 
   return (
@@ -68,6 +86,9 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <button className="icon-btn" onClick={toggleViewMode} title="Cambia visualizzazione">
             {viewMode === 'desktop' ? <IconSmartphone size={18} /> : <IconMonitor size={18} />}
+          </button>
+          <button className="icon-btn" onClick={logout} title="Esci">
+            <IconLogOut size={18} />
           </button>
         </div>
       </div>

@@ -7,6 +7,8 @@ const path = require('path');
 const pool = require('./db');
 const { sendMonthlyReport, previousMonth } = require('./monthlyReport');
 
+const { requireAuth } = require('./auth');
+const authRoutes = require('./routes/auth');
 const operatorsRoutes = require('./routes/operators');
 const sitesRoutes = require('./routes/sites');
 const communicationsRoutes = require('./routes/communications');
@@ -17,12 +19,15 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.use('/api/auth', authRoutes);
+
+app.use('/api', requireAuth);
+
 app.use('/api/operators', operatorsRoutes);
 app.use('/api/sites', sitesRoutes);
 app.use('/api/communications', communicationsRoutes);
 app.use('/api/reports', reportsRoutes);
-
-app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 app.use((err, req, res, next) => {
   console.error(err);
@@ -30,6 +35,10 @@ app.use((err, req, res, next) => {
 });
 
 async function bootstrap() {
+  if (!process.env.APP_PASSWORD || !process.env.SESSION_SECRET) {
+    throw new Error('APP_PASSWORD e SESSION_SECRET devono essere impostati nel .env');
+  }
+
   const schema = fs.readFileSync(path.join(__dirname, '..', 'init.sql'), 'utf8');
   await pool.query(schema);
 

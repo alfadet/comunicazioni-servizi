@@ -1,11 +1,32 @@
+const TOKEN_KEY = 'auth_token';
+
+export const auth = {
+  hasToken: () => !!localStorage.getItem(TOKEN_KEY),
+  clear: () => localStorage.removeItem(TOKEN_KEY),
+};
+
+function authHeaders() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function handleExpired(res) {
+  if (res.status === 401 && localStorage.getItem(TOKEN_KEY)) {
+    localStorage.removeItem(TOKEN_KEY);
+    window.dispatchEvent(new Event('auth-expired'));
+  }
+}
+
 async function request(path, options = {}) {
   const res = await fetch(`/api${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders(),
       ...(options.headers || {}),
     },
   });
+  handleExpired(res);
   const data = res.status === 204 ? null : await res.json().catch(() => null);
   if (!res.ok) {
     throw new Error(data?.error || 'Errore di rete');
@@ -14,7 +35,8 @@ async function request(path, options = {}) {
 }
 
 async function downloadPdf(path, filename) {
-  const res = await fetch(`/api${path}`);
+  const res = await fetch(`/api${path}`, { headers: authHeaders() });
+  handleExpired(res);
   if (!res.ok) throw new Error('Impossibile generare il PDF');
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
@@ -28,6 +50,10 @@ async function downloadPdf(path, filename) {
 }
 
 export const api = {
+  login: async (password) => {
+    const { token } = await request('/auth/login', { method: 'POST', body: JSON.stringify({ password }) });
+    localStorage.setItem(TOKEN_KEY, token);
+  },
   getOperators: () => request('/operators'),
   addOperator: (nome) => request('/operators', { method: 'POST', body: JSON.stringify({ nome }) }),
   importOperators: (nomi) => request('/operators/bulk', { method: 'POST', body: JSON.stringify({ nomi }) }),
