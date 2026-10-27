@@ -697,3 +697,57 @@ pre.preview-body {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
+
+/* ---- Popup di conferma con avviso ---- */
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fade-in 0.15s ease;
+}
+
+.confirm-modal {
+  background: var(--surface);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: var(--radius);
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+
+.confirm-modal p {
+  margin: 0 0 12px;
+}
+
+.confirm-title {
+  color: var(--danger);
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.confirm-danger {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.confirm-detail {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.confirm-note {
+  color: #fbbf24;
+  font-size: 13px;
+  margin-top: 8px;
+}

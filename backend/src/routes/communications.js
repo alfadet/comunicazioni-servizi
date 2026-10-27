@@ -119,6 +119,29 @@ async function editProtocols(req, res, mutate) {
   }
 }
 
+router.post('/:id/protocols/:idx/operators', async (req, res) => {
+  const nomi = Array.isArray(req.body?.nomi)
+    ? [...new Set(req.body.nomi.map((n) => String(n || '').trim().toUpperCase()).filter(Boolean))]
+    : [];
+  if (nomi.length === 0) return res.status(400).json({ error: 'Seleziona almeno un operatore' });
+
+  const { rows } = await pool.query('SELECT nome FROM operators WHERE nome = ANY($1)', [nomi]);
+  if (rows.length !== nomi.length) {
+    return res.status(400).json({ error: 'Operatore non presente in elenco' });
+  }
+
+  return editProtocols(req, res, (protocols, idx, p) => {
+    const unita = Array.isArray(p.unita) ? p.unita : [];
+    const nuovi = nomi.filter((n) => !unita.includes(n));
+    if (nuovi.length === 0) {
+      return { status: 409, error: 'Gli operatori scelti sono già in questo protocollo' };
+    }
+    return {
+      protocols: protocols.map((x, i) => (i === idx ? { ...x, unita: [...unita, ...nuovi] } : x)),
+    };
+  });
+});
+
 router.delete('/:id/protocols/:idx/operators/:nome', (req, res) =>
   editProtocols(req, res, (protocols, idx, p) => {
     const unita = Array.isArray(p.unita) ? p.unita : [];

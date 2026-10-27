@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from './api.js';
 import ServiceReport from './ServiceReport.jsx';
 import MonthlySummary from './MonthlySummary.jsx';
+import OperatorPicker from './OperatorPicker.jsx';
 
 function formatDateTime(iso) {
   const d = new Date(iso);
@@ -13,13 +14,15 @@ function formatDataIt(iso) {
   return `${d}/${m}/${y}`;
 }
 
-export default function History({ communications, onDuplicate, onChanged }) {
+export default function History({ communications, operators = [], onDuplicate, onChanged }) {
   const [tab, setTab] = useState('elenco');
   const [openId, setOpenId] = useState(null);
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editError, setEditError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [pickerIdx, setPickerIdx] = useState(null);
+  const [pendingAdd, setPendingAdd] = useState(null);
 
   useEffect(() => {
     setEditError('');
@@ -48,6 +51,26 @@ export default function History({ communications, onDuplicate, onChanged }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  function findConflicts(nomi, p, idx) {
+    const found = [];
+    for (const c of communications) {
+      c.protocols.forEach((q, qi) => {
+        if (c.id === detail.id && qi === idx) return;
+        if (q.data !== p.data) return;
+        for (const n of nomi) {
+          if (q.unita.includes(n)) found.push(`${n} risulta già su ${q.sito} lo stesso giorno`);
+        }
+      });
+    }
+    return found;
+  }
+
+  function confirmAdd() {
+    const { idx, p, nomi } = pendingAdd;
+    setPendingAdd(null);
+    runEdit(() => api.addOperatorsToProtocol(detail.id, idx, p, nomi));
   }
 
   function removeOperator(idx, p, nome) {
@@ -171,11 +194,57 @@ export default function History({ communications, onDuplicate, onChanged }) {
                     </span>
                   ))}
                 </div>
-                <button className="btn btn-danger" disabled={busy} onClick={() => removeProtocol(idx, p)}>
-                  Elimina protocollo
-                </button>
+                <div className="row-2">
+                  <button className="btn btn-secondary" disabled={busy} onClick={() => setPickerIdx(idx)}>
+                    + Aggiungi operatore
+                  </button>
+                  <button className="btn btn-danger" disabled={busy} onClick={() => removeProtocol(idx, p)}>
+                    Elimina protocollo
+                  </button>
+                </div>
               </div>
             ))}
+
+            {pickerIdx !== null && (
+              <OperatorPicker
+                operators={operators.filter((o) => !detail.protocols[pickerIdx].unita.includes(o.nome))}
+                initialSelected={[]}
+                onClose={() => setPickerIdx(null)}
+                onConfirm={(nomi) => {
+                  const idx = pickerIdx;
+                  setPickerIdx(null);
+                  if (nomi.length === 0) return;
+                  setPendingAdd({ idx, p: detail.protocols[idx], nomi });
+                }}
+              />
+            )}
+
+            {pendingAdd && (
+              <div className="confirm-overlay">
+                <div className="confirm-modal">
+                  <div className="confirm-title">ATTENZIONE</div>
+                  <p>
+                    Questa funzione serve <strong>solo per riconciliare gli operatori</strong> in caso di
+                    scambi e modifiche.
+                  </p>
+                  <p className="confirm-danger">
+                    NON viene inviata nessuna email alla Questura. L'email già inviata resta com'è: cambiano
+                    solo storico e conteggi.
+                  </p>
+                  <div className="confirm-detail">
+                    Aggiungere <strong>{pendingAdd.nomi.join(', ')}</strong> a{' '}
+                    <strong>{pendingAdd.p.sito}</strong> ({formatDataIt(pendingAdd.p.data)})?
+                  </div>
+                  {findConflicts(pendingAdd.nomi, pendingAdd.p, pendingAdd.idx).map((msg) => (
+                    <div className="confirm-note" key={msg}>⚠ {msg}</div>
+                  ))}
+                  <div className="row-2" style={{ marginTop: 16 }}>
+                    <button className="btn btn-secondary" onClick={() => setPendingAdd(null)}>Annulla</button>
+                    <button className="btn btn-primary" onClick={confirmAdd}>Aggiungi</button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="card">
               <div className="field" style={{ marginBottom: 0 }}>

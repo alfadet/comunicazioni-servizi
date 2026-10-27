@@ -90,6 +90,7 @@ export default function App() {
         {view === 'history' && (
           <History
             communications={communications}
+            operators={operators}
             onDuplicate={(protocols) => goToForm(protocols)}
             onChanged={loadCommunications}
           />
